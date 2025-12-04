@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.clinic.service.api.ApiPaths.DOCTORS;
+import static com.example.clinic.service.core.security.SecurityConstants.HAS_ADMIN;
+import static com.example.clinic.service.core.security.SecurityConstants.HAS_PATIENT;
 
 @RestController
 @RequestMapping(DOCTORS)
@@ -23,7 +25,7 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT')")
+    @PreAuthorize(HAS_ADMIN + " or " + HAS_PATIENT)
     public ResponseEntity<PagedResponse<DoctorResponse>> getAllDoctors(
             @RequestParam(defaultValue = "0") int page
     ) {
@@ -31,39 +33,27 @@ public class DoctorController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> createDoctor(@Valid @RequestBody CreateDoctorRequest request) {
-        try {
-            doctorService.createDoctor(request);
-            return ResponseEntity.ok(new MessageResponse("Доктор успешно создан"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-        }
+        doctorService.createDoctor(request);
+        return ResponseEntity.ok(new MessageResponse("Доктор успешно создан"));
     }
 
     @GetMapping("/{doctorId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT')")
+    @PreAuthorize(HAS_ADMIN + " or " + HAS_PATIENT)
     public ResponseEntity<DoctorDetailResponse> getDoctorDetail(
             @PathVariable Long doctorId
     ) {
-        try {
-            return ResponseEntity.ok(doctorService.getDetailDoctor(doctorId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(doctorService.getDetailDoctor(doctorId));
     }
 
     @PatchMapping("/{doctorId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateDoctor(
+    @PreAuthorize(HAS_ADMIN)
+    public ResponseEntity<MessageResponse> updateDoctor(
             @PathVariable Long doctorId,
             @Valid @RequestBody PatchDoctorRequest request
     ) {
-        try {
-            doctorService.updateDoctor(request, doctorId);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-        }
+        doctorService.updateDoctor(request, doctorId);
+        return ResponseEntity.ok(new MessageResponse("Данные успешно обновлены"));
     }
 }

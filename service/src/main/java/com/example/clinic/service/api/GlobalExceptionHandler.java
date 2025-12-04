@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<MessageResponse> handleAccessDeniedException(Exception ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new MessageResponse("Доступ запрещен: недостаточно прав"));
+                .body(new MessageResponse(ex.getMessage()));
     }
 
     // 404

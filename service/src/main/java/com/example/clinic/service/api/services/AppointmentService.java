@@ -161,7 +161,7 @@ public class AppointmentService {
 
     private Appointment getAppointmentEntity(Long appointmentId) {
         return appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Прием не найден с ID: " + appointmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Запись не найдена с ID: " + appointmentId));
     }
 
     private MedicationDto convertToMedicationDto(PrescribedMedication medication) {

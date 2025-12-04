@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.example.clinic.service.api.ApiPaths.*;
+import static com.example.clinic.service.core.security.SecurityConstants.HAS_ADMIN;
 
 @RestController
 @RequestMapping(DICTIONARIES)
@@ -29,19 +30,19 @@ public class DictionaryController {
     }
 
     @PostMapping(SPECIALTIES)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> createSpecialty(@Valid @RequestBody CreateDictionaryRequest request) {
         return processCreate(DictionaryType.SPECIALTY, request);
     }
 
     @PatchMapping(SPECIALTIES)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> updateSpecialty(@Valid @RequestBody PatchDictionaryRequest request) {
         return processUpdate(DictionaryType.SPECIALTY, request);
     }
 
     @DeleteMapping(SPECIALTIES + "/{specialtyId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> deleteSpecialty(@PathVariable Long specialtyId) {
         return processDelete(DictionaryType.SPECIALTY, specialtyId);
     }
@@ -53,19 +54,19 @@ public class DictionaryController {
     }
 
     @PostMapping(MEDICATIONS)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> createMedication(@Valid @RequestBody CreateDictionaryRequest request) {
         return processCreate(DictionaryType.MEDICATION, request);
     }
 
     @PatchMapping(MEDICATIONS)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> updateMedication(@Valid @RequestBody PatchDictionaryRequest request) {
         return processUpdate(DictionaryType.MEDICATION, request);
     }
 
     @DeleteMapping(MEDICATIONS + "/{medicationId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> deleteMedication(@PathVariable Long medicationId) {
         return processDelete(DictionaryType.MEDICATION, medicationId);
     }
@@ -77,19 +78,19 @@ public class DictionaryController {
     }
 
     @PostMapping(PROCEDURES)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> createProcedure(@Valid @RequestBody CreateDictionaryRequest request) {
         return processCreate(DictionaryType.PROCEDURE, request);
     }
 
     @PatchMapping(PROCEDURES)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> updateProcedure(@Valid @RequestBody PatchDictionaryRequest request) {
         return processUpdate(DictionaryType.PROCEDURE, request);
     }
 
     @DeleteMapping(PROCEDURES + "/{procedureId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> deleteProcedure(@PathVariable Long procedureId) {
         return processDelete(DictionaryType.PROCEDURE, procedureId);
     }
@@ -101,19 +102,19 @@ public class DictionaryController {
     }
 
     @PostMapping(TESTS)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> createTest(@Valid @RequestBody CreateDictionaryRequest request) {
         return processCreate(DictionaryType.TEST, request);
     }
 
     @PatchMapping(TESTS)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> updateTest(@Valid @RequestBody PatchDictionaryRequest request) {
         return processUpdate(DictionaryType.TEST, request);
     }
 
     @DeleteMapping(TESTS + "/{testId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(HAS_ADMIN)
     public ResponseEntity<?> deleteTest(@PathVariable Long testId) {
         return processDelete(DictionaryType.TEST, testId);
     }
