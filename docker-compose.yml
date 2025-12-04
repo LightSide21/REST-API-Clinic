@@ -14,9 +14,13 @@ services:
       - postgres
       - flyway
     volumes:
-      - ./service/build/libs:/app/jar
+      - .:/app
+      - gradle_cache:/root/.gradle
     working_dir: /app
-    command: sh -c "java -jar /app/jar/service-0.0.1-SNAPSHOT.jar"
+    command: >
+      sh -c "chmod +x gradlew && 
+             ./gradlew clean :service:bootJar -x test && 
+             java -jar service/build/libs/service-0.0.1-SNAPSHOT.jar"
 
   postgres:
     image: postgres:15-alpine
@@ -47,3 +51,4 @@ services:
 
 volumes:
   db_data:
+  gradle_cache:

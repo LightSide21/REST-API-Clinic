@@ -7,6 +7,8 @@ import com.example.clinic.service.api.dto.response.DoctorDetailResponse;
 import com.example.clinic.service.api.dto.response.DoctorResponse;
 import com.example.clinic.service.api.dto.response.PagedResponse;
 import com.example.clinic.service.api.dto.response.objects.ScheduleDtoResponse;
+import com.example.clinic.service.api.exceptions.BadRequestException;
+import com.example.clinic.service.api.exceptions.ResourceNotFoundException;
 import com.example.clinic.service.core.repositories.*;
 import com.example.clinic.service.entities.*;
 import com.example.clinic.service.entities.enums.Role;
@@ -37,10 +39,12 @@ public class DoctorService {
     private final PlaceRepository placeRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public PagedResponse<DoctorResponse> getAllDoctors(int page, String sortBy, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+    public PagedResponse<DoctorResponse> getAllDoctors(int page) {
+        if (page < 0) {
+            throw new BadRequestException("Номер страницы не может быть отрицательным");
+        }
+
+        Sort sort = Sort.by("lastName").ascending();
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, sort);
 
@@ -52,7 +56,7 @@ public class DoctorService {
     @Transactional
     public void createDoctor(CreateDoctorRequest request) {
         if (userRepository.existsByUsername(request.getLogin())) {
-            throw new RuntimeException("Username is already taken!");
+            throw new BadRequestException("Имя пользователя (login) уже занято");
         }
 
         User user = new User();
@@ -61,8 +65,7 @@ public class DoctorService {
         user.setRole(Role.DOCTOR);
         userRepository.save(user);
 
-        Specialty specialty = specialtyRepository.findById(request.getSpecialtyId())
-                .orElseThrow(() -> new RuntimeException("Specialty not found"));
+        Specialty specialty = getSpecialtyEntity(request.getSpecialtyId());
 
         Doctor doctor = new Doctor();
         doctor.setUser(user);
@@ -79,8 +82,7 @@ public class DoctorService {
 
 
     public DoctorDetailResponse getDetailDoctor(Long doctorId) {
-        Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new RuntimeException("Доктор не найден!"));
+        Doctor doctor = getDoctorEntity(doctorId);
 
         List<DoctorSlot> slots = doctorSlotRepository.findAvailableDoctorSlotsByDoctor(doctor, LocalDateTime.now().plusMonths(1));
 
@@ -105,9 +107,7 @@ public class DoctorService {
 
     @Transactional
     public void updateDoctor(PatchDoctorRequest request, Long doctorId) {
-
-        Doctor doctor =  doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new RuntimeException("Доктор не найден!"));
+        Doctor doctor = getDoctorEntity(doctorId);
 
         if (request.getFirstName() != null) {
             doctor.setFirstName(request.getFirstName());
@@ -122,9 +122,7 @@ public class DoctorService {
         }
 
         if (request.getSpecialtyId() != null) {
-            Specialty specialty = specialtyRepository.findById(request.getSpecialtyId())
-                    .orElseThrow(() -> new RuntimeException("Специальности не существует!"));
-            doctor.setSpecialty(specialty);
+            doctor.setSpecialty(getSpecialtyEntity(request.getSpecialtyId()));
         }
 
         if (request.getSchedules() != null) {
@@ -132,6 +130,16 @@ public class DoctorService {
         }
 
         doctorRepository.save(doctor);
+    }
+
+    private Doctor getDoctorEntity(Long doctorId) {
+        return doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Доктор не найден с ID: " + doctorId));
+    }
+
+    private Specialty getSpecialtyEntity(Long specialtyId) {
+        return specialtyRepository.findById(specialtyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Специальность не найдена с ID: " + specialtyId));
     }
 
 

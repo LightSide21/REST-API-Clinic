@@ -12,9 +12,6 @@ public class ApiPaths {
 
     public static final String DOCTORS = "/doctors";
 
-    public static final String SCHEDULES = "/schedules";
-
-
 
     public static final String PATIENTS = "/patients";
 

@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class TestDtoRequest {
     @NotNull
-    private Long id;
+    private Long testId;
 
     @Nullable
     private String results;

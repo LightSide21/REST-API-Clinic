@@ -3,6 +3,7 @@ package com.example.clinic.service.api.services;
 import com.example.clinic.service.api.dto.request.CreateDictionaryRequest;
 import com.example.clinic.service.api.dto.request.Patch.PatchDictionaryRequest;
 import com.example.clinic.service.api.dto.response.objects.DictionaryResponse;
+import com.example.clinic.service.api.exceptions.ResourceNotFoundException;
 import com.example.clinic.service.api.services.enums.DictionaryType;
 import com.example.clinic.service.core.repositories.MedicationRepository;
 import com.example.clinic.service.core.repositories.ProcedureRepository;
@@ -67,18 +68,30 @@ public class DictionaryService {
     public void deleteDictionaryItem(DictionaryType type, Long id) {
         switch (type) {
             case SPECIALTY: {
+                if (!specialtyRepository.existsById(id)) {
+                    throw new ResourceNotFoundException("Специальность не найдена с ID: " + id);
+                }
                 specialtyRepository.deleteById(id);
                 break;
             }
             case MEDICATION: {
+                if (!medicationRepository.existsById(id)) {
+                    throw new ResourceNotFoundException("Лекарство не найдено с ID: " + id);
+                }
                 medicationRepository.deleteById(id);
                 break;
             }
             case PROCEDURE: {
+                if (!procedureRepository.existsById(id)) {
+                    throw new ResourceNotFoundException("Процедура не найдена с ID: " + id);
+                }
                 procedureRepository.deleteById(id);
                 break;
             }
             case TEST: {
+                if (!testRepository.existsById(id)) {
+                    throw new ResourceNotFoundException("Анализ не найден с ID: " + id);
+                }
                 testRepository.deleteById(id);
                 break;
             }
@@ -92,22 +105,26 @@ public class DictionaryService {
 
         switch (type) {
             case SPECIALTY: {
-                Specialty specialty = specialtyRepository.findById(id).orElseThrow();
+                Specialty specialty = specialtyRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Специальность не найдена с ID: " + id));
                 specialty.setName(name);
                 specialtyRepository.save(specialty);
             }
             case MEDICATION: {
-                Medication medication = medicationRepository.findById(id).orElseThrow();
+                Medication medication = medicationRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Лекарство не найдено с ID: " + id));
                 medication.setName(name);
                 medicationRepository.save(medication);
             }
             case PROCEDURE: {
-                Procedure procedure = procedureRepository.findById(id).orElseThrow();
+                Procedure procedure = procedureRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Процедура не найдена с ID: " + id));
                 procedure.setName(name);
                 procedureRepository.save(procedure);
             }
             case TEST: {
-                Test test = testRepository.findById(id).orElseThrow();
+                Test test = testRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Анализ не найден с ID: " + id));
                 test.setName(name);
                 testRepository.save(test);
             }

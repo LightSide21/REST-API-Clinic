@@ -12,7 +12,7 @@ CREATE TABLE specialties (
 
 CREATE TABLE doctors (
     doctor_id       BIGSERIAL   PRIMARY KEY,
-    user_id         INT UNIQUE  REFERENCES users(user_id),
+    user_id         BIGINT      UNIQUE  REFERENCES users(user_id),
     last_name       TEXT        NOT NULL,
     first_name      TEXT        NOT NULL,
     middle_name     TEXT,
@@ -38,7 +38,7 @@ CREATE TABLE doctor_slots (
 
 CREATE TABLE patients (
     patient_id      BIGSERIAL   PRIMARY KEY,
-    user_id         INT         UNIQUE REFERENCES users(user_id),
+    user_id         BIGINT      UNIQUE REFERENCES users(user_id),
     last_name       TEXT        NOT NULL,
     first_name      TEXT        NOT NULL,
     middle_name     TEXT,
@@ -47,12 +47,17 @@ CREATE TABLE patients (
 
 CREATE TABLE appointments (
     appointment_id  BIGSERIAL   PRIMARY KEY,
-    patient_id      INT         REFERENCES patients(patient_id),
-    slot_id         BIGINT      NOT NULL UNIQUE REFERENCES doctor_slots(slot_id),
+    patient_id      BIGINT      REFERENCES patients(patient_id),
+    slot_id         BIGINT      NOT NULL REFERENCES doctor_slots(slot_id),
     complaints      TEXT,
     diagnosis       TEXT,
     status          TEXT        NOT NULL
 );
+
+CREATE UNIQUE INDEX unique_active_slot_idx
+    ON appointments (slot_id)
+    WHERE status = 'ACTIVE';
+
 
 CREATE TABLE medications (
     medication_id   BIGSERIAL   PRIMARY KEY,
@@ -71,8 +76,8 @@ CREATE TABLE tests (
 
 CREATE TABLE prescribed_medications (
     prescribed_med_id   BIGSERIAL   PRIMARY KEY,
-    appointment_id      INT         REFERENCES appointments(appointment_id),
-    medication_id       INT         REFERENCES medications(medication_id),
+    appointment_id      BIGINT      REFERENCES appointments(appointment_id),
+    medication_id       BIGINT      REFERENCES medications(medication_id),
     details             TEXT
 );
 
@@ -85,7 +90,7 @@ CREATE TABLE prescribed_procedures (
 
 CREATE TABLE prescribed_tests (
     prescribed_test_id  BIGSERIAL   PRIMARY KEY,
-    appointment_id      INT         REFERENCES appointments(appointment_id),
-    test_id             INT         REFERENCES tests(test_id),
+    appointment_id      BIGINT      REFERENCES appointments(appointment_id),
+    test_id             BIGINT      REFERENCES tests(test_id),
     result              TEXT
 );

@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class ProcedureDtoRequest {
     @NotNull
-    private Long id;
+    private Long procedureId;
 
     @Nullable
     private Integer sessions;

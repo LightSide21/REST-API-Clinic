@@ -1,5 +1,7 @@
 package com.example.clinic.service.api.controllers;
 
+import com.example.clinic.service.api.exceptions.ResourceNotFoundException;
+import com.example.clinic.service.core.repositories.DoctorRepository;
 import com.example.clinic.service.core.repositories.PatientRepository;
 import com.example.clinic.service.core.repositories.UserRepository;
 import com.example.clinic.service.core.security.jwt.JwtUtils;
@@ -37,54 +39,62 @@ public class AuthController {
     private final PatientRepository patientRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
+    private final DoctorRepository doctorRepository;
 
     @PostMapping(LOGIN)
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        // Аутентификация через Spring Security (проверяет логин/пароль)
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getLogin(), loginRequest.getPassword()));
 
-        // Установка аутентификации в контекст
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Генерация токена
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // Получение данных пользователя для ответа
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String role = userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElse(null);
 
+        Long entityId = -1L;
+        if (role != null) {
+
+            String roleString = role.split("_")[1].toLowerCase().trim();
+
+            entityId = switch (roleString) {
+                case "admin" -> userDetails.getId();
+                case "patient" -> patientRepository.findByUserUserId(userDetails.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Пациент не найден с ID: " + userDetails.getId())).getPatientId();
+                case "doctor" -> doctorRepository.findByUserUserId(userDetails.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Доктор не найден с ID: " + userDetails.getId())).getDoctorId();
+                default -> entityId;
+            };
+        }
+
         return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
+                entityId,
                 userDetails.getUsername(),
                 role));
     }
 
-    // 2. РЕГИСТРАЦИЯ ПАЦИЕНТА
     @PostMapping(REGISTER)
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        // Проверка: занят ли логин
         if (userRepository.existsByUsername(signUpRequest.getLogin())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(new MessageResponse("Имя пользователя уже занято"));
         }
 
-        // 1. Создаем User
         User user = new User();
         user.setUsername(signUpRequest.getLogin());
-        user.setPassword(encoder.encode(signUpRequest.getPassword())); // Обязательно хешируем пароль!
-        user.setRole(Role.PATIENT); // Регистрация доступна только пациентам
+        user.setPassword(encoder.encode(signUpRequest.getPassword()));
+        user.setRole(Role.PATIENT);
 
         User savedUser = userRepository.save(user);
 
-        // 2. Создаем профиль Patient (обязательно, так как в БД constraints)
         Patient patient = new Patient();
-        patient.setUser(savedUser); // Связываем с созданным юзером
+        patient.setUser(savedUser);
         patient.setFirstName(signUpRequest.getFirstName());
         patient.setLastName(signUpRequest.getLastName());
         patient.setMiddleName(signUpRequest.getMiddleName());
@@ -92,7 +102,7 @@ public class AuthController {
 
         patientRepository.save(patient);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Пользователь успешно зарегистрирован"));
     }
 
 }

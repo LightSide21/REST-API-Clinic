@@ -25,11 +25,9 @@ public class DoctorController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<PagedResponse<DoctorResponse>> getAllDoctors(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "lastName") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir
+            @RequestParam(defaultValue = "0") int page
     ) {
-        return ResponseEntity.ok(doctorService.getAllDoctors(page, sortBy, sortDir));
+        return ResponseEntity.ok(doctorService.getAllDoctors(page));
     }
 
     @PostMapping
@@ -68,19 +66,4 @@ public class DoctorController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
-
-//    @DeleteMapping("/{doctorId}" + SCHEDULES + "/{scheduleId}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public ResponseEntity<?> getDoctor(
-//            @PathVariable Long doctorId,
-//            @PathVariable Long scheduleId
-//    ) {
-//        try {
-//            doctorService.deleteSchedule(doctorId, scheduleId);
-//            return ResponseEntity.ok(new MessageResponse("Schedule deleted successfully"));
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-//        }
-//    }
-
 }

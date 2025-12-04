@@ -30,7 +30,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
 
     compileOnly("org.projectlombok:lombok")
