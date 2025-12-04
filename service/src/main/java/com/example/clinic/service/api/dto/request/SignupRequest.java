@@ -1,5 +1,6 @@
 package com.example.clinic.service.api.dto.request;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -18,6 +19,7 @@ public class SignupRequest {
     @NotBlank
     private String lastName;
 
+    @Nullable
     private String middleName;
 
     @NotBlank

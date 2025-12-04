@@ -151,15 +151,25 @@ public class DoctorService {
             place.setDistrict(schedDto.getDistrict());
             Place savedPlace = placeRepository.save(place);
 
-            LocalDateTime currTime = schedDto.getFrom();
+            LocalDateTime currTime = schedDto.getFrom().withSecond(0).withNano(0);
             LocalDateTime endTime = schedDto.getTo();
 
-            while (currTime.isBefore(endTime)) {
+            int remainder = currTime.getMinute() % MINUTES_FOR_APPOINTMENT;
+            if (remainder != 0) {
+                int minutesToAdd = MINUTES_FOR_APPOINTMENT - remainder;
+                currTime = currTime.plusMinutes(minutesToAdd);
+            }
+
+            while (currTime.plusMinutes(MINUTES_FOR_APPOINTMENT).isBefore(endTime) ||
+                    currTime.plusMinutes(MINUTES_FOR_APPOINTMENT).isEqual(endTime)) {
+
                 DoctorSlot slot = new DoctorSlot();
                 slot.setDoctor(savedDoctor);
                 slot.setPlace(savedPlace);
                 slot.setStartTime(currTime);
+
                 currTime = currTime.plusMinutes(MINUTES_FOR_APPOINTMENT);
+
                 slot.setEndTime(currTime);
                 doctorSlotRepository.save(slot);
             }
