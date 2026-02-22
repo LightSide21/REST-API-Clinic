@@ -12,8 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.clinic.service.api.dto.response.PageResponse;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -29,8 +30,9 @@ public class DictionaryController {
     @GetMapping(SPECIALTIES)
     public ResponseEntity<PageResponse<DictionaryResponse>> getAllSpecialties(
             @RequestParam(required = false) String search,
-            @PageableDefault(sort = "name") Pageable pageable) {
-        return processGetAll(DictionaryType.SPECIALTY, search, pageable);
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return processGetAll(DictionaryType.SPECIALTY, search, page, size);
     }
 
     @PostMapping(SPECIALTIES)
@@ -54,8 +56,9 @@ public class DictionaryController {
     @GetMapping(MEDICATIONS)
     public ResponseEntity<PageResponse<DictionaryResponse>> getAllMedications(
             @RequestParam(required = false) String search,
-            @PageableDefault(sort = "name") Pageable pageable) {
-        return processGetAll(DictionaryType.MEDICATION, search, pageable);
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return processGetAll(DictionaryType.MEDICATION, search, page, size);
     }
 
     @PostMapping(MEDICATIONS)
@@ -79,8 +82,9 @@ public class DictionaryController {
     @GetMapping(PROCEDURES)
     public ResponseEntity<PageResponse<DictionaryResponse>> getAllProcedures(
             @RequestParam(required = false) String search,
-            @PageableDefault(sort = "name") Pageable pageable) {
-        return processGetAll(DictionaryType.PROCEDURE, search, pageable);
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return processGetAll(DictionaryType.PROCEDURE, search, page, size);
     }
 
     @PostMapping(PROCEDURES)
@@ -104,8 +108,9 @@ public class DictionaryController {
     @GetMapping(TESTS)
     public ResponseEntity<PageResponse<DictionaryResponse>> getAllTests(
             @RequestParam(required = false) String search,
-            @PageableDefault(sort = "name") Pageable pageable) {
-        return processGetAll(DictionaryType.TEST, search, pageable);
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return processGetAll(DictionaryType.TEST, search, page, size);
     }
 
     @PostMapping(TESTS)
@@ -127,7 +132,8 @@ public class DictionaryController {
     }
 
     private ResponseEntity<PageResponse<DictionaryResponse>> processGetAll(DictionaryType type, String search,
-            Pageable pageable) {
+            int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         return ResponseEntity.ok(dictionaryService.getAllDictionary(type, search, pageable));
     }
 
